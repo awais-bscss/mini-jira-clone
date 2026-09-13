@@ -7,6 +7,7 @@ import { selectSidebarOpen } from '../store/selectors.js';
 import { Spinner } from '../components/Spinner/Spinner.jsx';
 import { BoardsPage } from '../features/boards/BoardsPage.jsx';
 import { BoardPage } from '../features/tasks/BoardPage.jsx';
+import { NotFoundPage } from '../features/not-found/NotFoundPage.jsx';
 import { useRecentBoards } from '../hooks/useRecentBoards.js';
 
 const AiDemoPage = lazy(() =>
@@ -66,6 +67,10 @@ export const router = createBrowserRouter([
       {
         path: '/ai-demo',
         element: <AiDemoPage />,
+      },
+      {
+        path: '*',
+        element: <NotFoundPage />,
       },
     ],
   },
