@@ -1,7 +1,7 @@
 {
   "name": "mini-jira-backend",
   "version": "1.0.0",
-  "description": "Mini Jira REST API — Node, Express, MongoDB",
+  "description": "Mini Jira REST API - Node, Express, MongoDB",
   "type": "commonjs",
   "main": "server.js",
   "scripts": {
