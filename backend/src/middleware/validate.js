@@ -1,7 +1,7 @@
-const { isValidObjectId, requireFields, escapeRegex } = require('../utils/helpers');
+const { isValidObjectId } = require('../utils/helpers');
+const { BadRequestError } = require('../utils/errors');
 
 function validateObjectIdParam(paramName = 'id') {
-  const { BadRequestError } = require('../utils/errors');
   return (req, _res, next) => {
     const id = req.params[paramName];
     if (!id || !isValidObjectId(id)) {
@@ -12,8 +12,5 @@ function validateObjectIdParam(paramName = 'id') {
 }
 
 module.exports = {
-  isValidObjectId,
   validateObjectIdParam,
-  requireFields,
-  escapeRegex,
 };
