@@ -20,6 +20,7 @@ app.use(
 app.use(express.json({ limit: '50kb' }));
 
 // Routes
+app.use('/api/projects', boardRoutes);
 app.use('/api/boards', boardRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/search', searchRoutes);

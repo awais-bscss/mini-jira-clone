@@ -5,13 +5,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useBoards } from '../../hooks/useBoards.js';
 import { useTasks, useReorderTask } from '../../hooks/useTasks.js';
 import {
+  makeSelectTasksByStatus,
   makeSelectTasksByAssignee,
   makeSelectTasksByLabel,
   selectGroupBy,
 } from '../../store/selectors.js';
 import { openCreateTaskModal, closeModal } from '../../store/uiSlice.js';
 import { Column } from './Column.jsx';
-import { StatusColumn } from './StatusColumn.jsx';
 import { CreateTaskModal } from './CreateTaskModal.jsx';
 import { BoardHeader } from './BoardHeader.jsx';
 import { BoardFilters } from './BoardFilters.jsx';
@@ -22,8 +22,6 @@ const TaskDetailModal = lazy(() =>
   import('./TaskDetailModal.jsx').then(m => ({ default: m.TaskDetailModal }))
 );
 
-// Module-level column definitions for each groupBy mode.
-// Defined outside component so they maintain stable object references.
 const ASSIGNEE_COLUMNS = Object.freeze([
   ...USERS.map(u => ({ id: u.id, name: u.name, dotColor: u.color })),
   { id: 'unassigned', name: 'Unassigned', dotColor: '#9ca3af' },
@@ -34,23 +32,22 @@ const LABEL_COLUMNS = Object.freeze([
   { id: 'unlabelled', name: 'Unlabelled', dotColor: '#9ca3af' },
 ]);
 
-// Module-level frozen empty array prevents breaking React.memo on empty columns
 const EMPTY_TASKS = Object.freeze([]);
 
 export function BoardPage() {
   const { boardId, taskId } = useParams();
-  const dispatch = useDispatch();
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const navigate            = useNavigate();
+  const dispatch            = useDispatch();
+  const [searchParams]      = useSearchParams();
 
-  // Redux-driven modal state
+  // Redux UI state
   const openModalType         = useSelector(state => state.ui.openModalType);
-  const reduxCreateTaskStatus = useSelector(state => state.ui.createTaskStatus);
   const isCreateModalOpen     = openModalType === 'createTask';
+  const reduxCreateTaskStatus = useSelector(state => state.ui.createTaskStatus);
   const effectiveStatus       = reduxCreateTaskStatus || 'todo';
   const groupBy               = useSelector(selectGroupBy);
 
-  // URL-driven filters (bookmarkable)
+  // URL-driven filters
   const statusFilter   = searchParams.get('status') || '';
   const assigneeFilter = searchParams.get('assigneeId') || '';
   const labelFilter    = searchParams.get('labelId') || '';
@@ -63,39 +60,28 @@ export function BoardPage() {
     search:     urlSearch,
   }), [statusFilter, assigneeFilter, labelFilter, urlSearch]);
 
-  // Filters passed to each StatusColumn (status is handled per-column, not here)
-  const columnFilters = useMemo(() => ({
-    assigneeId: assigneeFilter,
-    labelId:    labelFilter,
-    search:     urlSearch,
-  }), [assigneeFilter, labelFilter, urlSearch]);
-
   const { data: boards = [], isLoading: isBoardsLoading } = useBoards();
   const board = useMemo(() => boards.find(b => b.id === boardId), [boards, boardId]);
 
-  // If boards are loaded and boardId doesn't exist, automatically redirect to the first real board
+  // Redirect to first board if boardId is invalid
   useEffect(() => {
     if (!isBoardsLoading && boards.length > 0 && !board) {
       navigate(`/board/${boards[0].id}`, { replace: true });
     }
   }, [isBoardsLoading, boards, board, navigate]);
 
-  // ── groupBy !== 'status' : fetch all tasks (limit 200), group client-side ──
-  // Disabled when groupBy === 'status' (StatusColumn fetches per-column instead)
+  // Single unified query: fetch all tasks for the board in 1 request
   const {
     data: tasks = EMPTY_TASKS,
-    isLoading: isTasksLoading,
-    isError: isTasksError,
+    isLoading,
+    isError,
     refetch,
-  } = useTasks(boardId, filters, { enabled: groupBy !== 'status' });
-
-  // Only show a board-level error when we actually tried to fetch (non-status mode)
-  const isLoading = groupBy !== 'status' && isTasksLoading;
-  const isError   = groupBy !== 'status' && isTasksError;
+  } = useTasks(boardId, filters);
 
   const reorderTask = useReorderTask(boardId);
 
-  // One memoised selector instance per groupBy mode — stable per mount
+  // Stable selectors per mount
+  const selectTasksByStatus   = useMemo(() => makeSelectTasksByStatus(),   []);
   const selectTasksByAssignee = useMemo(() => makeSelectTasksByAssignee(), []);
   const selectTasksByLabel    = useMemo(() => makeSelectTasksByLabel(),    []);
 
@@ -113,14 +99,15 @@ export function BoardPage() {
     return columns;
   }, [columns, groupBy, statusFilter]);
 
-  // Compute the grouped task map for non-status groupBy modes
+  // Compute the grouped task map for all modes cleanly
   const tasksByGroup = useMemo(() => {
+    if (groupBy === 'status')   return selectTasksByStatus(tasks, filters);
     if (groupBy === 'assignee') return selectTasksByAssignee(tasks, filters);
     if (groupBy === 'label')    return selectTasksByLabel(tasks, filters);
-    return {}; // status mode: StatusColumn handles its own data
-  }, [groupBy, tasks, filters, selectTasksByAssignee, selectTasksByLabel]);
+    return {};
+  }, [groupBy, tasks, filters, selectTasksByStatus, selectTasksByAssignee, selectTasksByLabel]);
 
-  // ── Drag-and-drop handler ──────────────────────────────────────────────────
+  // Drag-and-drop handler
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragStart = useCallback(() => {
@@ -141,7 +128,6 @@ export function BoardPage() {
     });
   }, [reorderTask]);
 
-  // ── Column-specific Create task ────────────────────────────────────────────
   const handleCreateTask = useCallback((columnId) => {
     dispatch(openCreateTaskModal(columnId));
   }, [dispatch]);
@@ -157,7 +143,7 @@ export function BoardPage() {
         <BoardFilters />
       </BoardHeader>
 
-      {/* Board-level error (non-status groupBy only) */}
+      {/* Board-level error */}
       {isError && (
         <div className="flex flex-col items-center justify-center flex-1 gap-4">
           <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center max-w-sm">
@@ -178,21 +164,7 @@ export function BoardPage() {
         <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <div className="flex-1 overflow-x-auto overflow-y-hidden min-h-0">
             <div className="flex gap-6 p-6 h-full min-h-0" style={{ minWidth: 'max-content' }}>
-
-              {/* ── Status mode: each column self-fetches (30/page) ─── */}
-              {groupBy === 'status' && displayColumns.map(col => (
-                <StatusColumn
-                  key={col.id}
-                  column={col}
-                  boardId={boardId}
-                  filters={columnFilters}
-                  onCreateTask={handleCreateTask}
-                  isDragging={isDragging}
-                />
-              ))}
-
-              {/* ── Assignee / Label mode: props-driven Column ────── */}
-              {groupBy !== 'status' && columns.map(col => (
+              {displayColumns.map(col => (
                 <Column
                   key={col.id}
                   column={col}
@@ -201,7 +173,6 @@ export function BoardPage() {
                   isDragging={isDragging}
                 />
               ))}
-
             </div>
           </div>
         </DragDropContext>
@@ -215,7 +186,7 @@ export function BoardPage() {
         defaultStatus={effectiveStatus}
       />
 
-      {/* Task detail modal — code-split via React.lazy + Suspense */}
+      {/* Task detail modal */}
       {taskId && (
         <Suspense fallback={null}>
           <TaskDetailModal />
