@@ -1,10 +1,3 @@
-/**
- * IssueTypeIcon — Renders official Jira-style issue type indicators:
- * - Task: Blue rounded square with white checkmark
- * - Bug: Red circle with white dot/circle
- * - Story: Green rounded square with white bookmark
- * - Epic: Purple rounded square with white lightning bolt
- */
 export function IssueTypeIcon({ type = 'task', size = 'sm', className = '' }) {
   const normType = String(type).toLowerCase();
 
@@ -59,7 +52,6 @@ export function IssueTypeIcon({ type = 'task', size = 'sm', className = '' }) {
     );
   }
 
-  // Default: Task (Blue checkbox)
   return (
     <span
       className={`inline-flex items-center justify-center bg-blue-500 rounded text-white shrink-0 shadow-2xs ${sizeBox} ${className}`}

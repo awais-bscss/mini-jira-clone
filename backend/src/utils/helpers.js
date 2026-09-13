@@ -1,7 +1,3 @@
-/**
- * Shared utility helpers used across services and middleware.
- */
-
 const mongoose = require('mongoose');
 const { BadRequestError } = require('./errors');
 

@@ -126,7 +126,7 @@ export const TaskDetailsTab = memo(function TaskDetailsTab({ task, boardId, onDe
                 Cancel
               </button>
               {updateTask.isError && (
-                <p className="text-xs text-red-500 ml-1">Save failed — please try again.</p>
+                <p className="text-xs text-red-500 ml-1">Save failed - please try again.</p>
               )}
             </>
           ) : (
@@ -138,7 +138,6 @@ export const TaskDetailsTab = memo(function TaskDetailsTab({ task, boardId, onDe
             </button>
           )}
 
-          {/* Delete — inline confirmation */}
           <div className="ml-auto flex items-center gap-2">
             {showDeleteConfirm ? (
               <>

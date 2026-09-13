@@ -1,6 +1,5 @@
 import { LABELS } from '../../constants/data.js';
 
-/** Badge — colored status/label indicator */
 export function Badge({ labelId, className = '' }) {
   const label = LABELS.find(l => l.id === labelId);
   if (!label) return null;
@@ -14,7 +13,6 @@ export function Badge({ labelId, className = '' }) {
   );
 }
 
-/** StatusBadge — for task status */
 const STATUS_CONFIG = {
   'todo':        { label: 'To Do',       bg: '#f1f5f9', color: '#64748b' },
   'in-progress': { label: 'In Progress', bg: '#eef2ff', color: '#4F6EF7' },

@@ -1,16 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useOutsideClick } from '../../hooks/useOutsideClick.js';
 
-/**
- * Dropdown — Accessible, keyboard-navigable custom select component.
- *
- * Supports:
- * - Keyboard navigation (ArrowUp, ArrowDown, Enter, Space, Escape, Home, End)
- * - WAI-ARIA combobox + listbox pattern (aria-expanded, aria-activedescendant, role="option")
- * - Outside click auto-close
- * - Colored dots (for Status), Avatars (for Assignees), Badges (for Labels)
- * - Custom trigger or option renderers
- */
 export function Dropdown({
   id,
   value,

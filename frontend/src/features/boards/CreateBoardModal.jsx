@@ -65,7 +65,7 @@ function CreateBoardForm({ onClose }) {
       {/* Project key */}
       <div>
         <div className="flex items-center justify-between mb-1">
-          <label className="label mb-0" htmlFor="board-key">Key <span className="text-slate-400 font-normal text-xs">(2–6 uppercase letters)</span></label>
+          <label className="label mb-0" htmlFor="board-key">Key <span className="text-slate-400 font-normal text-xs">(2-6 uppercase letters)</span></label>
           {autoKeyHint && !form.key && (
             <span className="text-[11px] text-slate-400">Preview: <strong className="text-slate-600">{autoKeyHint}</strong></span>
           )}

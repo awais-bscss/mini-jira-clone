@@ -1,9 +1,5 @@
 import { USERS } from '../../constants/data.js';
 
-/**
- * Avatar — renders a user's initials in their assigned color.
- * Presentational component: no logic, only display.
- */
 export function Avatar({ userId, size = 'sm', showName = false, className = '' }) {
   const user = USERS.find(u => u.id === userId);
   if (!user) return null;

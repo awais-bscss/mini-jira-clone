@@ -17,10 +17,9 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', id = 'mod
     onCloseRef.current = onClose;
   });
 
-  // Outside click closes modal — only active when open
   useOutsideClick(panelRef, onClose, isOpen);
 
-  // Focus initial element ONCE when modal opens (only if focus is not already inside)
+  // Auto-focus first element
   useEffect(() => {
     if (!isOpen) return;
     const timer = setTimeout(() => {
@@ -32,7 +31,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', id = 'mod
     return () => clearTimeout(timer);
   }, [isOpen]);
 
-  // Focus trap + Escape key handling
+  // Focus trap and escape key
   useEffect(() => {
     if (!isOpen) return;
 
@@ -57,9 +56,8 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', id = 'mod
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
-  // Lock body scroll while modal is open
+  // Prevent background scroll
   useEffect(() => {
-    // Effect: prevent background scroll; cleanup restores it when modal closes
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       return () => { document.body.style.overflow = ''; };

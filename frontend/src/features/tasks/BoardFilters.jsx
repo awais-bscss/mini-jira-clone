@@ -24,15 +24,10 @@ export const BoardFilters = memo(function BoardFilters() {
 
   const groupBy = useSelector(selectGroupBy);
 
-  // Local state for immediate typing responsiveness
   const [searchInput, setSearchInput] = useState(urlSearch);
   const debouncedSearch = useDebouncedValue(searchInput, 300);
-
-  // Ref tracks the last value we wrote to the URL so we don't re-run the
-  // effect every time an unrelated param (e.g. status) changes.
   const lastSyncedSearch = useRef(urlSearch);
 
-  // Sync debounced search to URL search param (only fires after user stops typing)
   useEffect(() => {
     if (debouncedSearch === lastSyncedSearch.current) return;
     lastSyncedSearch.current = debouncedSearch;
@@ -99,7 +94,6 @@ export const BoardFilters = memo(function BoardFilters() {
         />
       </div>
 
-      {/* Status filter — always visible for consistent toolbar layout */}
       <Dropdown
         id="status-filter"
         value={statusFilter}
@@ -109,7 +103,6 @@ export const BoardFilters = memo(function BoardFilters() {
         className="w-36"
       />
 
-      {/* Group By dropdown */}
       <Dropdown
         id="group-by"
         value={groupBy}

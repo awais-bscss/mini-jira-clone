@@ -40,14 +40,12 @@ export function BoardPage() {
   const dispatch            = useDispatch();
   const [searchParams]      = useSearchParams();
 
-  // Redux UI state
   const openModalType         = useSelector(state => state.ui.openModalType);
   const isCreateModalOpen     = openModalType === 'createTask';
   const reduxCreateTaskStatus = useSelector(state => state.ui.createTaskStatus);
   const effectiveStatus       = reduxCreateTaskStatus || 'todo';
   const groupBy               = useSelector(selectGroupBy);
 
-  // URL-driven filters
   const statusFilter   = searchParams.get('status') || '';
   const assigneeFilter = searchParams.get('assigneeId') || '';
   const labelFilter    = searchParams.get('labelId') || '';
@@ -70,7 +68,6 @@ export function BoardPage() {
     }
   }, [isBoardsLoading, boards, board, navigate]);
 
-  // Single unified query: fetch all tasks for the board in 1 request
   const {
     data: tasks = EMPTY_TASKS,
     isLoading,
@@ -80,7 +77,6 @@ export function BoardPage() {
 
   const reorderTask = useReorderTask(boardId);
 
-  // Stable selectors per mount
   const selectTasksByStatus   = useMemo(() => makeSelectTasksByStatus(),   []);
   const selectTasksByAssignee = useMemo(() => makeSelectTasksByAssignee(), []);
   const selectTasksByLabel    = useMemo(() => makeSelectTasksByLabel(),    []);
@@ -99,7 +95,6 @@ export function BoardPage() {
     return columns;
   }, [columns, groupBy, statusFilter]);
 
-  // Compute the grouped task map for all modes cleanly
   const tasksByGroup = useMemo(() => {
     if (groupBy === 'status')   return selectTasksByStatus(tasks, filters);
     if (groupBy === 'assignee') return selectTasksByAssignee(tasks, filters);
@@ -107,7 +102,6 @@ export function BoardPage() {
     return {};
   }, [groupBy, tasks, filters, selectTasksByStatus, selectTasksByAssignee, selectTasksByLabel]);
 
-  // Drag-and-drop handler
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragStart = useCallback(() => {

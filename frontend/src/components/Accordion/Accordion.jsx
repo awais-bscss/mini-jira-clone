@@ -1,9 +1,5 @@
 import { useState } from 'react';
 
-/**
- * Accordion — keyboard accessible, correct aria-expanded/aria-controls.
- * Can be used as a single item or as a group.
- */
 export function Accordion({ items, allowMultiple = false, className = '' }) {
   const [openItems, setOpenItems] = useState(new Set());
 

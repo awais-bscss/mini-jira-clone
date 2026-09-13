@@ -21,7 +21,6 @@ export const Column = memo(function Column({ column, tasks = EMPTY_LIST, onCreat
     return [...tasks].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   }, [tasks]);
 
-  // Virtualization parent ref
   const parentRef = useRef(null);
 
   const virtualizer = useVirtualizer({
@@ -40,7 +39,6 @@ export const Column = memo(function Column({ column, tasks = EMPTY_LIST, onCreat
 
   return (
     <div className="flex flex-col w-72 shrink-0 rounded-xl bg-[#F4F5F7] border border-slate-200/80 max-h-full min-h-0 shadow-2xs">
-      {/* Column Header (Jira standard) */}
       <div className="px-3.5 py-3 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: column.dotColor ?? cfg.dot }} aria-hidden="true" />
@@ -53,11 +51,9 @@ export const Column = memo(function Column({ column, tasks = EMPTY_LIST, onCreat
         </div>
       </div>
 
-      {/* Card List — Droppable */}
       <Droppable droppableId={column.id}>
         {(provided, snapshot) => {
-          // Disable virtualization during any drag to prevent source-column cards
-          // from disappearing when scrolled out of view mid-drag.
+          // Keep all cards mounted while dragging
           const isVirtual = shouldVirtualize && !snapshot.isDraggingOver && !isDragging;
 
           return (
@@ -72,7 +68,6 @@ export const Column = memo(function Column({ column, tasks = EMPTY_LIST, onCreat
               }`}
             >
               {isVirtual ? (
-                // Virtualized rendering for large lists — uses sortedTasks
                 <div
                   style={{ height: virtualizer.getTotalSize(), position: 'relative', width: '100%' }}
                 >
@@ -94,7 +89,6 @@ export const Column = memo(function Column({ column, tasks = EMPTY_LIST, onCreat
                   {provided.placeholder}
                 </div>
               ) : (
-                // Standard rendering for smaller lists
                 <>
                   {sortedTasks.map((task, index) => (
                     <Card key={task.id} task={task} index={index} />
@@ -107,7 +101,6 @@ export const Column = memo(function Column({ column, tasks = EMPTY_LIST, onCreat
         }}
       </Droppable>
 
-      {/* Create task button — pinned at bottom */}
       <div className="p-2 shrink-0 border-t border-slate-200/60">
         <button
           id={`create-task-${column.id}`}

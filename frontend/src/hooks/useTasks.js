@@ -10,7 +10,6 @@ export const taskKeys = {
   detail: (taskId)  => ['task', taskId],
 };
 
-// Unified board-level task query — fetches all tasks in a single clean request
 export function useTasks(boardId, filters = {}, options = {}) {
   const isValid = typeof boardId === 'string' && /^[0-9a-fA-F]{24}$/.test(boardId);
   return useQuery({

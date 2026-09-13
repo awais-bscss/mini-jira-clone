@@ -4,7 +4,6 @@ export const selectOpenModalType = (state) => state.ui.openModalType;
 export const selectSidebarOpen   = (state) => state.ui.sidebarOpen;
 export const selectGroupBy       = (state) => state.ui.groupBy;
 
-// Shared filter logic — avoids 15+ duplicated lines across three selectors
 function applyFilters(tasks, { status, assigneeId, labelId, search } = {}) {
   let filtered = tasks;
   if (status)     filtered = filtered.filter(t => t.status === status);

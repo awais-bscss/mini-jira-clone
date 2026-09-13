@@ -123,7 +123,6 @@ export function BoardsPage() {
               />
             ))}
 
-            {/* Create board CTA card — always last */}
             {!hasMore && (
               <button
                 onClick={handleOpenCreate}
