@@ -5,7 +5,6 @@ import { useBoards } from '../../hooks/useBoards.js';
 import { Accordion } from '../Accordion/Accordion.jsx';
 import { Spinner } from '../Spinner/Spinner.jsx';
 import { USERS, LABELS } from '../../constants/data.js';
-import { useRecentBoards } from '../../hooks/useRecentBoards.js';
 
 function getProjectIcon(iconType) {
   switch (iconType) {
@@ -41,37 +40,6 @@ export function Sidebar() {
   const { boardId } = useParams();
   const { data: boards = [], isLoading } = useBoards();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { recentIds } = useRecentBoards();
-
-  const activeBoard = boardId ? boards.find(b => b.id === boardId) : null;
-
-  // Build sidebar board list:
-  // 1. Always show boards the user recently visited (in visit order)
-  // 2. Always include the currently active board even if not in recent list yet
-  // 3. Cap at 5 visible boards
-  const MAX_SIDEBAR_BOARDS = 5;
-  const sidebarBoards = (() => {
-    const seen = new Set();
-    const list = [];
-
-    // Respect recent-visit order
-    for (const id of recentIds) {
-      const board = boards.find(b => b.id === id);
-      if (board && !seen.has(id)) {
-        seen.add(id);
-        list.push(board);
-      }
-      if (list.length >= MAX_SIDEBAR_BOARDS) break;
-    }
-
-    // Always include the active board even if it hasn't been stored yet
-    if (activeBoard && !seen.has(activeBoard.id)) {
-      list.unshift(activeBoard);
-      if (list.length > MAX_SIDEBAR_BOARDS) list.pop();
-    }
-
-    return list;
-  })();
 
   function setFilter(key, value) {
     setSearchParams(p => {
@@ -94,18 +62,16 @@ export function Sidebar() {
         <div className="space-y-0.5">
           <button
             onClick={() => setFilter('assigneeId', '')}
-            className={`w-full text-left px-2 py-1 text-xs rounded transition-colors ${
-              !searchParams.get('assigneeId') ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
-            }`}
+            className={`w-full text-left px-2 py-1 text-xs rounded transition-colors ${!searchParams.get('assigneeId') ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
+              }`}
           >
             All members
           </button>
           {/* Unassigned filter */}
           <button
             onClick={() => setFilter('assigneeId', 'unassigned')}
-            className={`w-full text-left px-2 py-1 text-xs rounded flex items-center gap-2 transition-colors ${
-              searchParams.get('assigneeId') === 'unassigned' ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
-            }`}
+            className={`w-full text-left px-2 py-1 text-xs rounded flex items-center gap-2 transition-colors ${searchParams.get('assigneeId') === 'unassigned' ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
+              }`}
           >
             <span className="w-4 h-4 rounded-full bg-slate-200 flex items-center justify-center shrink-0">
               <svg className="w-2.5 h-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,9 +84,8 @@ export function Sidebar() {
             <button
               key={u.id}
               onClick={() => setFilter('assigneeId', u.id)}
-              className={`w-full text-left px-2 py-1 text-xs rounded flex items-center gap-2 transition-colors ${
-                searchParams.get('assigneeId') === u.id ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
-              }`}
+              className={`w-full text-left px-2 py-1 text-xs rounded flex items-center gap-2 transition-colors ${searchParams.get('assigneeId') === u.id ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
+                }`}
             >
               <span
                 className="w-4 h-4 rounded-full text-[8px] flex items-center justify-center text-white font-bold shrink-0 shadow-2xs"
@@ -146,9 +111,8 @@ export function Sidebar() {
         <div className="space-y-0.5">
           <button
             onClick={() => setFilter('labelId', '')}
-            className={`w-full text-left px-2 py-1 text-xs rounded transition-colors ${
-              !searchParams.get('labelId') ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
-            }`}
+            className={`w-full text-left px-2 py-1 text-xs rounded transition-colors ${!searchParams.get('labelId') ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
+              }`}
           >
             All labels
           </button>
@@ -156,9 +120,8 @@ export function Sidebar() {
             <button
               key={l.id}
               onClick={() => setFilter('labelId', l.id)}
-              className={`w-full text-left px-2 py-1 text-xs rounded flex items-center gap-2 transition-colors ${
-                searchParams.get('labelId') === l.id ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
-              }`}
+              className={`w-full text-left px-2 py-1 text-xs rounded flex items-center gap-2 transition-colors ${searchParams.get('labelId') === l.id ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
+                }`}
             >
               <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: l.color }} />
               <span className="truncate">{l.name}</span>
@@ -175,25 +138,11 @@ export function Sidebar() {
                   transition-all duration-300 ease-in-out ${isOpen ? 'w-60' : 'w-0 overflow-hidden'}`}
     >
       <div className="flex flex-col h-full min-w-[240px]">
-        {/* Project Header tile */}
-        {activeBoard && (
-          <div className="p-2 border-b border-slate-200">
-            <Link
-              to={`/board/${activeBoard.id}`}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:bg-slate-100/70 transition-colors"
-              title={activeBoard.name}
-            >
-              {getProjectIcon(activeBoard.iconType)}
-              <span className="truncate">{activeBoard.name}</span>
-            </Link>
-          </div>
-        )}
-
         <div className="flex-1 overflow-y-auto">
           {/* Projects section */}
           <div className="p-2">
-            <div className="flex items-center justify-between px-3 mb-1">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Recent projects</p>
+            <div className="flex items-center justify-between px-3 mb-1.5">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Projects</p>
               <Link to="/" className="text-xs text-[#0052CC] hover:underline font-medium">
                 View all
               </Link>
@@ -203,17 +152,16 @@ export function Sidebar() {
               <div className="flex justify-center py-4"><Spinner size="sm" /></div>
             ) : (
               <nav className="space-y-0.5">
-                {sidebarBoards.map(board => {
+                {boards.map(board => {
                   const isActive = boardId === board.id;
                   return (
                     <Link
                       key={board.id}
                       to={`/board/${board.id}`}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                        isActive
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
                           ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold'
                           : 'text-slate-700 hover:bg-slate-50'
-                      }`}
+                        }`}
                     >
                       {getProjectIcon(board.iconType)}
                       <span className="truncate">{board.name}</span>
@@ -221,20 +169,20 @@ export function Sidebar() {
                   );
                 })}
 
-                {/* Prompt to visit all projects if none visited yet */}
-                {!isLoading && sidebarBoards.length === 0 && (
+                {/* Prompt to visit all projects if none exist */}
+                {!isLoading && boards.length === 0 && (
                   <Link
                     to="/"
                     className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs text-slate-400 hover:bg-slate-50 transition-colors"
                   >
-                    Browse all projects →
+                    Browse all projects
                   </Link>
                 )}
               </nav>
             )}
           </div>
 
-          {/* Filters — Accordion */}
+          {/* Filters - Accordion */}
           {boardId && (
             <div className="p-2 pt-1 border-t border-slate-200">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-1">Filters</p>
