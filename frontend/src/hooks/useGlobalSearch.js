@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDebouncedValue } from './useDebouncedValue.js';
 import { searchEntities } from '../api/search.js';
 
-const EMPTY_RESULTS = Object.freeze({ boards: [], tasks: [] });
+const EMPTY_RESULTS = Object.freeze({ projects: [], boards: [], tasks: [] });
 
 export function useGlobalSearch(query, debounceMs = 200) {
   const debouncedQuery = useDebouncedValue(query, debounceMs);
@@ -15,8 +15,10 @@ export function useGlobalSearch(query, debounceMs = 200) {
     if (!q) return;
 
     const controller = new AbortController();
-    queueMicrotask(() => setIsSearching(true));
-    setError(null);
+    queueMicrotask(() => {
+      setIsSearching(true);
+      setError(null);
+    });
 
     searchEntities(q, controller.signal)
       .then((data) => {

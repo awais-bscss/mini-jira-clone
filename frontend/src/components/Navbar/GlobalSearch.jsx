@@ -25,19 +25,21 @@ export function GlobalSearch() {
     inputRef.current?.focus();
   }, []);
 
-  const handleSelectBoard = useCallback((boardId) => {
+  const handleSelectProject = useCallback((projectId) => {
     setIsOpen(false);
     setQuery('');
-    navigate(`/board/${boardId}`);
+    navigate(`/board/${projectId}`);
   }, [navigate]);
 
-  const handleSelectTask = useCallback((boardId, taskId) => {
+  const handleSelectTask = useCallback((projectId, taskId) => {
     setIsOpen(false);
     setQuery('');
-    navigate(`/board/${boardId}/task/${taskId}`);
+    navigate(`/board/${projectId}/task/${taskId}`);
   }, [navigate]);
 
-  const hasResults = results.boards.length > 0 || results.tasks.length > 0;
+  const projectList = results.projects || results.boards || [];
+  const taskList = results.tasks || [];
+  const hasResults = projectList.length > 0 || taskList.length > 0;
   const isQueryActive = Boolean(query.trim());
 
   return (
@@ -65,7 +67,7 @@ export function GlobalSearch() {
             inputRef.current?.blur();
           }
         }}
-        placeholder="Search tasks, boards..."
+        placeholder="Search tasks, projects..."
         className="w-full pl-9 pr-8 h-10 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-800
                    placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#0052CC]
                    transition-colors duration-150"
@@ -91,44 +93,44 @@ export function GlobalSearch() {
             <div className="p-4 text-center text-xs text-slate-400">Searching...</div>
           ) : !hasResults ? (
             <div className="p-4 text-center text-xs text-slate-400">
-              No matching tasks or boards found
+              No matching tasks or projects found
             </div>
           ) : (
             <div className="py-1">
-              {/* Matching Boards */}
-              {results.boards.length > 0 && (
+              {/* Matching Projects */}
+              {projectList.length > 0 && (
                 <div>
                   <p className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                    Boards
+                    Projects
                   </p>
-                  {results.boards.map(b => (
+                  {projectList.map(p => (
                     <button
-                      key={b.id}
+                      key={p.id}
                       type="button"
-                      onClick={() => handleSelectBoard(b.id)}
+                      onClick={() => handleSelectProject(p.id)}
                       className="w-full text-left px-3 py-2 text-xs flex items-center gap-2.5 hover:bg-slate-50 transition-colors"
                     >
                       <span className="w-6 h-6 rounded bg-slate-100 border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600 shrink-0">
-                        {b.key || 'BD'}
+                        {p.key || 'PRJ'}
                       </span>
-                      <span className="font-medium text-slate-800 truncate">{b.name}</span>
-                      <span className="text-[10px] text-slate-400 ml-auto shrink-0">Board</span>
+                      <span className="font-medium text-slate-800 truncate">{p.name}</span>
+                      <span className="text-[10px] text-slate-400 ml-auto shrink-0">Project</span>
                     </button>
                   ))}
                 </div>
               )}
 
               {/* Matching Tasks */}
-              {results.tasks.length > 0 && (
-                <div className={results.boards.length > 0 ? 'border-t border-slate-100 mt-1 pt-1' : ''}>
+              {taskList.length > 0 && (
+                <div className={projectList.length > 0 ? 'border-t border-slate-100 mt-1 pt-1' : ''}>
                   <p className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                     Tasks
                   </p>
-                  {results.tasks.map(t => (
+                  {taskList.map(t => (
                     <button
                       key={t.id}
                       type="button"
-                      onClick={() => handleSelectTask(t.boardId, t.id)}
+                      onClick={() => handleSelectTask(t.boardId || t.projectId, t.id)}
                       className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-slate-50 transition-colors"
                     >
                       <span className="font-mono text-[11px] font-semibold text-[#0052CC] bg-[#E9F2FF] px-1.5 py-0.5 rounded shrink-0">
@@ -136,7 +138,7 @@ export function GlobalSearch() {
                       </span>
                       <span className="text-slate-700 truncate">{t.title}</span>
                       <span className="text-[10px] text-slate-400 ml-auto shrink-0">
-                        {t.boardName}
+                        {t.projectName || t.boardName}
                       </span>
                     </button>
                   ))}

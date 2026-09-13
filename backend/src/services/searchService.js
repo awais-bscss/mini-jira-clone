@@ -21,15 +21,19 @@ class SearchService {
       taskBoards.map((b) => [b._id.toString(), b.name])
     );
 
+    const mappedProjects = boards.map((b) => ({
+      id:   b._id.toString(),
+      name: b.name,
+      key:  b.key,
+    }));
+
     return {
-      boards: boards.map((b) => ({
-        id:   b._id.toString(),
-        name: b.name,
-        key:  b.key,
-      })),
+      projects: mappedProjects,
+      boards:   mappedProjects,
       tasks: tasks.map((t) => ({
         ...Task.toClient(t),
-        boardName: boardMap[t.boardId.toString()] || 'Unknown board',
+        projectName: boardMap[t.boardId.toString()] || 'Unknown project',
+        boardName:   boardMap[t.boardId.toString()] || 'Unknown project',
       })),
     };
   }
