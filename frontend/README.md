@@ -187,7 +187,7 @@ Configured in `src/router/index.jsx` via `createBrowserRouter`:
 - **`Tabs/`**: Compound tabs supporting arrow key and `Home`/`End` navigation.
 - **`Accordion/`**: Expandable disclosure panels with animated height transitions.
 - **`Navbar/`**: Header with project links, global search, and AI assistant shortcut.
-- **`Sidebar/`**: Collapsible panel listing projects and recently visited boards.
+- **`Sidebar/`**: Collapsible panel listing projects with in-place active highlighting and quick filters.
 
 ---
 

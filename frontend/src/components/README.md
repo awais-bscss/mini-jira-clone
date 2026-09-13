@@ -50,7 +50,7 @@ All components follow these principles:
 
 ### 8. Sidebar (`Sidebar/`)
 - Collapsible left navigation sidebar (240px width).
-- Displays project list, recently visited boards (retrieved from `useRecentBoards`), and status/label quick filters.
+- Displays the stable project list with in-place active highlighting, and status/label quick filters.
 
 ### 9. Spinner (`Spinner/`)
 - SVG-based indeterminate circular loading indicator.
