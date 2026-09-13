@@ -22,6 +22,7 @@ export function AiDemoPage() {
     const trimmed = prompt.trim();
     if (!trimmed || isStreaming) return;
     ask(trimmed);
+    setPrompt('');
   }, [prompt, isStreaming, ask]);
 
   const handleCopy = useCallback(() => {
@@ -80,32 +81,17 @@ export function AiDemoPage() {
                   Stop
                 </button>
               ) : (
-                <>
-                  {lastPrompt && (
-                    <button
-                      type="button"
-                      onClick={retry}
-                      className="btn-secondary text-xs flex items-center gap-1.5"
-                      title={`Retry: "${lastPrompt}"`}
-                    >
-                      <svg className="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                      Retry
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={handleAsk}
-                    disabled={!prompt.trim()}
-                    className="btn-primary text-xs disabled:opacity-50 flex items-center gap-1.5"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                    Ask
-                  </button>
-                </>
+                <button
+                  type="button"
+                  onClick={handleAsk}
+                  disabled={!prompt.trim()}
+                  className="btn-primary text-xs disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                  Ask
+                </button>
               )}
             </div>
           </div>
