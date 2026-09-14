@@ -34,7 +34,7 @@ All components follow these principles:
 ### 4. Dropdown (`Dropdown/`)
 - Custom select and menu component.
 - Implements `role="listbox"`, `role="option"`, and keyboard navigation (`ArrowUp`, `ArrowDown`, `Enter`, `Escape`).
-- Supports disabled options and custom render trigger props.
+- Supports option badges, avatars, disabled states, and outside-click dismissal.
 
 ### 5. Avatar (`Avatar/`)
 - Displays user profile picture or fallback initials with deterministic background colors based on user ID.
@@ -42,7 +42,7 @@ All components follow these principles:
 
 ### 6. Icon (`Icon/`)
 - **`IssueTypeIcon.jsx`**: Renders Jira issue icons (`task`, `bug`, `story`, `epic`) with official color accents.
-- **`PriorityIcon.jsx`**: Renders Jira priority indicators (`highest`, `high`, `medium`, `low`, `lowest`).
+- **`ProjectIcon.jsx`**: Renders project category indicators (`code`, `server`, `mobile`, `board`).
 
 ### 7. Navbar (`Navbar/`)
 - Fixed top navigation header (56px height).

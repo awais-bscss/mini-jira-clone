@@ -115,7 +115,8 @@ frontend/
 │   │   ├── useRenameBoardForm.js # Board rename form logic
 │   │   └── useTasks.js           # Tasks queries, mutations, and optimistic reorder
 │   ├── router/
-│   │   └── index.jsx           # Route definitions and AppShell layout
+│   │   ├── AppShell.jsx        # AppShell persistent shell layout
+│   │   └── index.jsx           # Route definitions and browser router
 │   ├── store/
 │   │   ├── index.js            # Redux store setup
 │   │   ├── selectors.js        # Reselect memoized selectors

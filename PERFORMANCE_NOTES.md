@@ -97,20 +97,18 @@ const TaskDetailModal = lazy(() =>
 )}
 ```
 
-2. **AiDemoPage (`src/router/index.jsx`)**:
+2. **AiDemoPage (`src/features/ai-demo/LazyAiDemoPage.jsx`)**:
 ```jsx
-const AiDemoPage = lazy(() =>
-  import('../features/ai-demo/AiDemoPage.jsx').then(m => ({ default: m.AiDemoPage }))
-);
+export const LazyAiDemoPage = lazy(() => import('./AiDemoPage.jsx'));
 ```
 
 ### Production Build Measurements (Vite Analyzer)
 
 | Bundle Chunk | Size | Gzip Size | Loading Behavior |
 |---|---|---|---|
-| `index.js` (Main bundle) | 585.38 kB | 177.67 kB | Initial page load |
-| `TaskDetailModal.js` | 12.90 kB | 3.99 kB | Loaded on-demand on task open |
-| `AiDemoPage.js` | 122.41 kB | 37.04 kB | Loaded on-demand on /ai-demo |
+| `index.js` (Main bundle) | 585.23 kB | 177.47 kB | Initial page load |
+| `TaskDetailModal.js` | 12.91 kB | 3.99 kB | Loaded on-demand on task open |
+| `AiDemoPage.js` | 121.93 kB | 37.02 kB | Loaded on-demand on /ai-demo |
 
 ---
 
@@ -159,6 +157,30 @@ Configured `staleTime: 60_000` (1 minute) and `gcTime: 300_000` (5 minutes) in `
 
 ---
 
+## 6. Layout and Shared UI Component Memoization
+
+### Problem
+Components in the persistent layout and shared design system (`Navbar`, `Sidebar`, `Accordion`, `Avatar`, `IssueTypeIcon`, `ProjectIcon`, and `Dropdown`) re-rendered on every state change in parent pages, even when their incoming props were unchanged.
+
+### Fix Implemented
+- Wrapped `Sidebar`, `Navbar`, `Accordion`, `Avatar`, `IssueTypeIcon`, and `ProjectIcon` in `React.memo`.
+- In `Sidebar.jsx`, wrapped static filter item arrays in `useMemo` and the filter updater in `useCallback`.
+- In `Dropdown.jsx`, wrapped in `React.memo` and removed unused render props (`renderTrigger`, `renderOption`) that read mutable refs during render.
+
+---
+
+## 7. Elimination of Cascading State Updates and Dead Hooks
+
+### Problem
+- In `TaskDetailsTab.jsx`, a `useEffect` synchronously called `setEditTitle` and `setEditDescription` on mount, triggering an immediate second render cycle (`react(set-state-in-effect)`).
+- An unused hook (`useRecentBoards.js`) wrote to `localStorage` and dispatched global custom DOM events on every board visit without any consumer.
+
+### Fix Implemented
+- Keyed the detail tab as `<TaskDetailsTab key={task.id} />` in `TaskDetailModal.jsx`. React automatically resets state when switching tasks without cascading `useEffect` updates.
+- Removed `useRecentBoards.js` and all associated listeners, eliminating unnecessary disk writes and event dispatch cycles.
+
+---
+
 ## Summary Checklist
 
 - [x] React.memo on Card Component: Wrapped with memo, rendering only when card props change.
@@ -167,3 +189,5 @@ Configured `staleTime: 60_000` (1 minute) and `gcTime: 300_000` (5 minutes) in `
 - [x] React.lazy and Suspense Code Splitting: Both TaskDetailModal and AiDemoPage split into on-demand chunks.
 - [x] Reselect Memoization: Grouped column calculations memoized against tasks and filter arrays.
 - [x] Server Cache Deduplication: Stale-while-revalidate caching active via TanStack Query.
+- [x] Layout and UI Memoization: Persistent layout and recurring icons wrapped in React.memo.
+- [x] Cascading Render Elimination: Removed redundant setState effects and dead storage hooks.
