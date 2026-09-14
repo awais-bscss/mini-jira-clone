@@ -50,6 +50,7 @@ export function TaskDetailModal() {
             {/* ── Details Tab ── */}
             <Tabs.Panel id="details" className="p-6">
               <TaskDetailsTab
+                key={task.id}
                 task={task}
                 boardId={boardId}
                 onDeleteSuccess={handleClose}

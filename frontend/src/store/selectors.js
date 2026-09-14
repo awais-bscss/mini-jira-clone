@@ -6,12 +6,20 @@ export const selectGroupBy       = (state) => state.ui.groupBy;
 
 function applyFilters(tasks, { status, assigneeId, labelId, search } = {}) {
   let filtered = tasks;
-  if (status)     filtered = filtered.filter(t => t.status === status);
-  if (assigneeId) filtered = filtered.filter(t => t.assigneeId === assigneeId);
-  if (labelId)    filtered = filtered.filter(t => t.labelId === labelId);
-  if (search)     filtered = filtered.filter(t =>
-    t.title.toLowerCase().includes(search.toLowerCase())
-  );
+  if (status) filtered = filtered.filter(t => t.status === status);
+  if (assigneeId) {
+    filtered = filtered.filter(t => assigneeId === 'unassigned' ? !t.assigneeId : t.assigneeId === assigneeId);
+  }
+  if (labelId) {
+    filtered = filtered.filter(t => labelId === 'unlabelled' ? !t.labelId : t.labelId === labelId);
+  }
+  if (search) {
+    const q = search.toLowerCase();
+    filtered = filtered.filter(t =>
+      (t.title && t.title.toLowerCase().includes(q)) ||
+      (t.taskKey && t.taskKey.toLowerCase().includes(q))
+    );
+  }
   return filtered;
 }
 

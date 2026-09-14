@@ -27,11 +27,6 @@ export const TaskDetailsTab = memo(function TaskDetailsTab({ task, boardId, onDe
   const titleInputRef = useRef(null);
 
   useEffect(() => {
-    setEditTitle(task.title);
-    setEditDescription(task.description || '');
-  }, [task.id, task.title, task.description]);
-
-  useEffect(() => {
     if (isEditing) {
       setTimeout(() => titleInputRef.current?.focus(), 50);
     }

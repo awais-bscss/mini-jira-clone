@@ -78,7 +78,7 @@ export const TaskCommentsTab = memo(function TaskCommentsTab({ taskId, comments 
             type="text"
             value={commentText}
             onChange={e => setCommentText(e.target.value)}
-            placeholder="Add a comment…"
+            placeholder="Add a comment..."
             className="input flex-1"
           />
           <button type="submit" className="btn-primary text-xs shrink-0" disabled={!commentText.trim() || addComment.isPending}>

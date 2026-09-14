@@ -42,6 +42,13 @@ export const BoardFilters = memo(function BoardFilters() {
     }, { replace: true });
   }, [debouncedSearch, setSearchParams]);
 
+  useEffect(() => {
+    if (urlSearch !== lastSyncedSearch.current) {
+      lastSyncedSearch.current = urlSearch;
+      setSearchInput(urlSearch);
+    }
+  }, [urlSearch]);
+
   const handleStatusChange = useCallback((val) => {
     setSearchParams(p => {
       const next = new URLSearchParams(p);
