@@ -1,4 +1,6 @@
-export function ProjectIcon({ type, className = "w-5 h-5" }) {
+import { memo } from 'react';
+
+export const ProjectIcon = memo(function ProjectIcon({ type, className = "w-5 h-5" }) {
   switch (type) {
     case 'code':
       return (
@@ -25,4 +27,5 @@ export function ProjectIcon({ type, className = "w-5 h-5" }) {
         </svg>
       );
   }
-}
+});
+

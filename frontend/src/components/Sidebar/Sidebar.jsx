@@ -1,3 +1,4 @@
+import { memo, useCallback, useMemo } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectSidebarOpen } from '../../store/selectors.js';
@@ -35,21 +36,24 @@ function getProjectIcon(iconType) {
   }
 }
 
-export function Sidebar() {
+export const Sidebar = memo(function Sidebar() {
   const isOpen = useSelector(selectSidebarOpen);
   const { boardId } = useParams();
   const { data: boards = [], isLoading } = useBoards();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  function setFilter(key, value) {
+  const setFilter = useCallback((key, value) => {
     setSearchParams(p => {
       const next = new URLSearchParams(p);
       if (value) { next.set(key, value); } else { next.delete(key); }
       return next;
     });
-  }
+  }, [setSearchParams]);
 
-  const filterItems = [
+  const activeAssignee = searchParams.get('assigneeId') || '';
+  const activeLabel = searchParams.get('labelId') || '';
+
+  const filterItems = useMemo(() => [
     {
       id: 'assignee',
       label: 'Assignee',
@@ -62,7 +66,7 @@ export function Sidebar() {
         <div className="space-y-0.5">
           <button
             onClick={() => setFilter('assigneeId', '')}
-            className={`w-full text-left px-2 py-1 text-xs rounded transition-colors ${!searchParams.get('assigneeId') ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
+            className={`w-full text-left px-2 py-1 text-xs rounded transition-colors ${!activeAssignee ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
               }`}
           >
             All members
@@ -70,7 +74,7 @@ export function Sidebar() {
           {/* Unassigned filter */}
           <button
             onClick={() => setFilter('assigneeId', 'unassigned')}
-            className={`w-full text-left px-2 py-1 text-xs rounded flex items-center gap-2 transition-colors ${searchParams.get('assigneeId') === 'unassigned' ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
+            className={`w-full text-left px-2 py-1 text-xs rounded flex items-center gap-2 transition-colors ${activeAssignee === 'unassigned' ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
               }`}
           >
             <span className="w-4 h-4 rounded-full bg-slate-200 flex items-center justify-center shrink-0">
@@ -84,7 +88,7 @@ export function Sidebar() {
             <button
               key={u.id}
               onClick={() => setFilter('assigneeId', u.id)}
-              className={`w-full text-left px-2 py-1 text-xs rounded flex items-center gap-2 transition-colors ${searchParams.get('assigneeId') === u.id ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
+              className={`w-full text-left px-2 py-1 text-xs rounded flex items-center gap-2 transition-colors ${activeAssignee === u.id ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
                 }`}
             >
               <span
@@ -111,7 +115,7 @@ export function Sidebar() {
         <div className="space-y-0.5">
           <button
             onClick={() => setFilter('labelId', '')}
-            className={`w-full text-left px-2 py-1 text-xs rounded transition-colors ${!searchParams.get('labelId') ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
+            className={`w-full text-left px-2 py-1 text-xs rounded transition-colors ${!activeLabel ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
               }`}
           >
             All labels
@@ -120,7 +124,7 @@ export function Sidebar() {
             <button
               key={l.id}
               onClick={() => setFilter('labelId', l.id)}
-              className={`w-full text-left px-2 py-1 text-xs rounded flex items-center gap-2 transition-colors ${searchParams.get('labelId') === l.id ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
+              className={`w-full text-left px-2 py-1 text-xs rounded flex items-center gap-2 transition-colors ${activeLabel === l.id ? 'bg-[#E9F2FF] text-[#0052CC] font-semibold' : 'text-slate-600 hover:bg-slate-100'
                 }`}
             >
               <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: l.color }} />
@@ -130,7 +134,7 @@ export function Sidebar() {
         </div>
       ),
     },
-  ];
+  ], [activeAssignee, activeLabel, setFilter]);
 
   return (
     <aside
@@ -206,4 +210,4 @@ export function Sidebar() {
       </div>
     </aside>
   );
-}
+});

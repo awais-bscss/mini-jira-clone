@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, memo } from 'react';
 import { useOutsideClick } from '../../hooks/useOutsideClick.js';
 
-export function Dropdown({
+export const Dropdown = memo(function Dropdown({
   id,
   value,
   onChange,
@@ -13,8 +13,6 @@ export function Dropdown({
   size = 'md',
   className = '',
   buttonClassName = '',
-  renderTrigger,
-  renderOption,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -23,22 +21,29 @@ export function Dropdown({
   const buttonRef = useRef(null);
   const listRef = useRef(null);
 
-  // Close when clicked outside
-  useOutsideClick(containerRef, () => {
-    if (isOpen) setIsOpen(false);
-  }, isOpen);
+  const openDropdown = useCallback(() => {
+    if (disabled) return;
+    const idx = options.findIndex(o => o.value === value);
+    setHighlightedIndex(idx >= 0 ? idx : 0);
+    setIsOpen(true);
+  }, [disabled, options, value]);
+
+  const closeDropdown = useCallback(() => {
+    setIsOpen(false);
+    setHighlightedIndex(-1);
+  }, []);
+
+  const toggleDropdown = useCallback(() => {
+    if (isOpen) {
+      closeDropdown();
+    } else {
+      openDropdown();
+    }
+  }, [isOpen, closeDropdown, openDropdown]);
+
+  useOutsideClick(containerRef, closeDropdown, isOpen);
 
   const selectedOption = options.find(o => o.value === value) || null;
-
-  // Sync highlighted index with currently selected option when opening
-  useEffect(() => {
-    if (isOpen) {
-      const idx = options.findIndex(o => o.value === value);
-      setHighlightedIndex(idx >= 0 ? idx : 0);
-    } else {
-      setHighlightedIndex(-1);
-    }
-  }, [isOpen, value, options]);
 
   // Scroll highlighted item into view if necessary
   useEffect(() => {
@@ -53,11 +58,10 @@ export function Dropdown({
   const selectOption = useCallback((option) => {
     if (option.disabled) return;
     onChange?.(option.value);
-    setIsOpen(false);
+    closeDropdown();
     buttonRef.current?.focus();
-  }, [onChange]);
+  }, [onChange, closeDropdown]);
 
-  // Keyboard navigation
   const handleKeyDown = (e) => {
     if (disabled) return;
 
@@ -65,7 +69,7 @@ export function Dropdown({
       case 'ArrowDown': {
         e.preventDefault();
         if (!isOpen) {
-          setIsOpen(true);
+          openDropdown();
         } else {
           setHighlightedIndex(prev => (prev < options.length - 1 ? prev + 1 : 0));
         }
@@ -74,7 +78,7 @@ export function Dropdown({
       case 'ArrowUp': {
         e.preventDefault();
         if (!isOpen) {
-          setIsOpen(true);
+          openDropdown();
         } else {
           setHighlightedIndex(prev => (prev > 0 ? prev - 1 : options.length - 1));
         }
@@ -102,21 +106,21 @@ export function Dropdown({
             selectOption(options[highlightedIndex]);
           }
         } else {
-          setIsOpen(true);
+          openDropdown();
         }
         break;
       }
       case 'Escape': {
         if (isOpen) {
           e.preventDefault();
-          setIsOpen(false);
+          closeDropdown();
           buttonRef.current?.focus();
         }
         break;
       }
       case 'Tab': {
         if (isOpen) {
-          setIsOpen(false);
+          closeDropdown();
         }
         break;
       }
@@ -140,96 +144,91 @@ export function Dropdown({
       )}
 
       {/* Trigger Button */}
-      {renderTrigger ? (
-        renderTrigger({
-          selectedOption,
-          isOpen,
-          toggle: () => !disabled && setIsOpen(!isOpen),
-          buttonRef,
-          handleKeyDown,
-          disabled,
-        })
-      ) : (
-        <button
-          ref={buttonRef}
-          id={id}
-          type="button"
-          role="combobox"
-          aria-haspopup="listbox"
-          aria-expanded={isOpen}
-          aria-controls={id ? `${id}-listbox` : undefined}
-          aria-activedescendant={
-            isOpen && highlightedIndex >= 0 ? `${id}-opt-${highlightedIndex}` : undefined
-          }
-          disabled={disabled}
-          onClick={() => !disabled && setIsOpen(!isOpen)}
-          onKeyDown={handleKeyDown}
-          className={`w-full flex items-center justify-between gap-2 bg-white border rounded-md text-left
-                     transition-colors duration-150 focus:outline-none
-                     disabled:opacity-50 disabled:cursor-not-allowed
-                     ${error ? 'border-red-400' : 'border-slate-200 hover:border-slate-300'}
-                     ${sizeClasses} ${buttonClassName}`}
-        >
-          <span className="flex items-center gap-2 truncate text-slate-800">
-            {selectedOption ? (
-              <>
-                {selectedOption.dotColor && (
-                  <span
-                    className="w-2.5 h-2.5 rounded-full shrink-0"
-                    style={{ backgroundColor: selectedOption.dotColor }}
-                    aria-hidden="true"
-                  />
-                )}
-                {selectedOption.avatar && (
-                  <span className="shrink-0">{selectedOption.avatar}</span>
-                )}
-                {selectedOption.badge && (
-                  <span
-                    className="px-1.5 py-0.5 rounded text-[11px] font-medium shrink-0"
-                    style={{
-                      backgroundColor: selectedOption.badgeColor ? `${selectedOption.badgeColor}20` : '#f1f5f9',
-                      color: selectedOption.badgeColor || '#475569',
-                    }}
-                  >
-                    {selectedOption.badge}
-                  </span>
-                )}
-                <span className="truncate font-normal">{selectedOption.label}</span>
-              </>
-            ) : (
-              <span className="text-slate-400 font-normal">{placeholder}</span>
-            )}
-          </span>
+      <button
+        ref={buttonRef}
+        id={id}
+        type="button"
+        role="combobox"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls={id ? `${id}-listbox` : undefined}
+        aria-activedescendant={
+          isOpen && highlightedIndex >= 0 ? `${id}-opt-${highlightedIndex}` : undefined
+        }
+        disabled={disabled}
+        onClick={toggleDropdown}
+        onKeyDown={handleKeyDown}
+        className={`w-full flex items-center justify-between gap-2 bg-white border rounded-md text-left
+                   transition-colors duration-150 focus:outline-none
+                   disabled:opacity-50 disabled:cursor-not-allowed
+                   ${error ? 'border-red-400' : 'border-slate-200 hover:border-slate-300'}
+                   ${sizeClasses} ${buttonClassName}`}
+      >
+        <span className="flex items-center gap-2 truncate text-slate-800">
+          {selectedOption ? (
+            <>
+              {selectedOption.dotColor && (
+                <span
+                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                  style={{ backgroundColor: selectedOption.dotColor }}
+                  aria-hidden="true"
+                />
+              )}
+              {selectedOption.avatar && (
+                <span className="shrink-0">{selectedOption.avatar}</span>
+              )}
+              {selectedOption.badge && (
+                <span
+                  className="px-1.5 py-0.5 rounded text-[11px] font-medium shrink-0"
+                  style={{
+                    backgroundColor: selectedOption.badgeColor ? `${selectedOption.badgeColor}20` : '#f1f5f9',
+                    color: selectedOption.badgeColor || '#475569',
+                  }}
+                >
+                  {selectedOption.badge}
+                </span>
+              )}
+              <span className="truncate">{selectedOption.label}</span>
+            </>
+          ) : (
+            <span className="text-slate-400 truncate">{placeholder}</span>
+          )}
+        </span>
 
-          {/* Chevron indicator with smooth rotation animation */}
-          <svg
-            className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${
-              isOpen ? 'rotate-180 text-brand-500' : ''
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
+        <svg
+          className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {error && (
+        <p id={id ? `${id}-error` : undefined} className="text-xs text-red-500 mt-1" role="alert">
+          {error}
+        </p>
       )}
 
-      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
-
-      {/* Floating Options Menu */}
+      {/* Dropdown Menu */}
       {isOpen && (
         <ul
           ref={listRef}
           id={id ? `${id}-listbox` : undefined}
           role="listbox"
           tabIndex={-1}
-          className="absolute z-50 mt-1 left-0 w-full bg-white border border-slate-200 rounded-lg
-                     shadow-lg overflow-hidden max-h-60 overflow-y-auto focus:outline-none animate-in fade-in duration-100"
+          aria-labelledby={label && id ? `${id}-label` : undefined}
+          aria-activedescendant={highlightedIndex >= 0 ? `${id}-opt-${highlightedIndex}` : undefined}
+          className="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg
+                     py-1 max-h-60 overflow-y-auto focus:outline-none
+                     animate-in fade-in-0 zoom-in-95 duration-100"
         >
           {options.length === 0 ? (
-            <li className="px-3 py-2 text-xs text-slate-400 text-center">No options available</li>
+            <li className="px-3 py-2 text-xs text-slate-400 text-center select-none" role="presentation">
+              No options available
+            </li>
           ) : (
             options.map((option, index) => {
               const isSelected = option.value === value;
@@ -253,34 +252,29 @@ export function Dropdown({
                                : (isHighlighted ? 'bg-slate-100 text-slate-900' : 'text-slate-700 hover:bg-slate-50')
                              }`}
                 >
-                  {renderOption ? (
-                    renderOption({ option, isSelected, isHighlighted })
-                  ) : (
-                    <div className="flex items-center gap-2 truncate">
-                      {option.dotColor && (
-                        <span
-                          className="w-2.5 h-2.5 rounded-full shrink-0"
-                          style={{ backgroundColor: option.dotColor }}
-                          aria-hidden="true"
-                        />
-                      )}
-                      {option.avatar && <span className="shrink-0">{option.avatar}</span>}
-                      {option.badge && (
-                        <span
-                          className="px-1.5 py-0.5 rounded text-[11px] font-medium shrink-0"
-                          style={{
-                            backgroundColor: option.badgeColor ? `${option.badgeColor}20` : '#f1f5f9',
-                            color: option.badgeColor || '#475569',
-                          }}
-                        >
-                          {option.badge}
-                        </span>
-                      )}
-                      <span className="truncate">{option.label}</span>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2 truncate">
+                    {option.dotColor && (
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: option.dotColor }}
+                        aria-hidden="true"
+                      />
+                    )}
+                    {option.avatar && <span className="shrink-0">{option.avatar}</span>}
+                    {option.badge && (
+                      <span
+                        className="px-1.5 py-0.5 rounded text-[11px] font-medium shrink-0"
+                        style={{
+                          backgroundColor: option.badgeColor ? `${option.badgeColor}20` : '#f1f5f9',
+                          color: option.badgeColor || '#475569',
+                        }}
+                      >
+                        {option.badge}
+                      </span>
+                    )}
+                    <span className="truncate">{option.label}</span>
+                  </div>
 
-                  {/* Selected checkmark */}
                   {isSelected && (
                     <svg
                       className={`${size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-[#0052CC] shrink-0 ml-1`}
@@ -300,4 +294,4 @@ export function Dropdown({
       )}
     </div>
   );
-}
+});

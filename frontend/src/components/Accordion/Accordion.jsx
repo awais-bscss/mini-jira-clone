@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import { useState, memo, useCallback } from 'react';
 
-export function Accordion({ items, allowMultiple = false, className = '' }) {
+export const Accordion = memo(function Accordion({ items, allowMultiple = false, className = '' }) {
   const [openItems, setOpenItems] = useState(new Set());
 
-  function toggle(id) {
+  const toggle = useCallback((id) => {
     setOpenItems(prev => {
       const next = new Set(allowMultiple ? prev : []);
       if (prev.has(id)) { next.delete(id); } else { next.add(id); }
       return next;
     });
-  }
+  }, [allowMultiple]);
 
   return (
     <div className={`divide-y divide-slate-100 ${className}`}>
@@ -62,4 +62,5 @@ export function Accordion({ items, allowMultiple = false, className = '' }) {
       })}
     </div>
   );
-}
+});
+

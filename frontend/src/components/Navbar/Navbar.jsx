@@ -1,10 +1,10 @@
-import { useCallback } from 'react';
+import { useCallback, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { toggleSidebar, openCreateTaskModal } from '../../store/uiSlice.js';
 import { GlobalSearch } from './GlobalSearch.jsx';
 
-export function Navbar({ boardId }) {
+export const Navbar = memo(function Navbar({ boardId }) {
   const dispatch = useDispatch();
 
   const handleToggleSidebar = useCallback(() => {
@@ -88,4 +88,4 @@ export function Navbar({ boardId }) {
 
     </header>
   );
-}
+});

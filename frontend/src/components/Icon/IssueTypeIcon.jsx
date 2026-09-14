@@ -1,17 +1,22 @@
-export function IssueTypeIcon({ type = 'task', size = 'sm', className = '' }) {
+import { memo } from 'react';
+
+const SIZE_BOX = {
+  xs: 'w-3.5 h-3.5 rounded',
+  sm: 'w-4 h-4 rounded',
+  md: 'w-5 h-5 rounded-md',
+};
+
+const ICON_SIZE = {
+  xs: 'w-2.5 h-2.5',
+  sm: 'w-3 h-3',
+  md: 'w-3.5 h-3.5',
+};
+
+export const IssueTypeIcon = memo(function IssueTypeIcon({ type = 'task', size = 'sm', className = '' }) {
   const normType = String(type).toLowerCase();
 
-  const sizeBox = {
-    xs: 'w-3.5 h-3.5 rounded',
-    sm: 'w-4 h-4 rounded',
-    md: 'w-5 h-5 rounded-md',
-  }[size] || 'w-4 h-4 rounded';
-
-  const iconSize = {
-    xs: 'w-2.5 h-2.5',
-    sm: 'w-3 h-3',
-    md: 'w-3.5 h-3.5',
-  }[size] || 'w-3 h-3';
+  const sizeBox = SIZE_BOX[size] || 'w-4 h-4 rounded';
+  const iconSize = ICON_SIZE[size] || 'w-3 h-3';
 
   if (normType === 'bug') {
     return (
@@ -62,4 +67,5 @@ export function IssueTypeIcon({ type = 'task', size = 'sm', className = '' }) {
       </svg>
     </span>
   );
-}
+});
+
