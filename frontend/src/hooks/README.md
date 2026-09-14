@@ -86,9 +86,3 @@ DOM event listener hook:
 - Accepts a React container `ref`, a callback handler, and an `enabled` boolean.
 - Attaches `mousedown` and `touchstart` listeners to `document`.
 - Fires callback when an interaction occurs outside the referenced DOM node. Used in `Dropdown`, `GlobalSearch`, and `Modal`.
-
-#### `useRecentBoards.js`
-Client-side persistence for recent boards:
-- Persists visited board IDs in browser `localStorage` under key `mini_jira_recent_boards`.
-- Enforces maximum of 5 unique entries with recent-first ordering.
-- Exposes `recentBoardIds` array and `addRecentBoard(boardId)` function used by `AppShell`.

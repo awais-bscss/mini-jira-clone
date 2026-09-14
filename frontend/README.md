@@ -112,7 +112,6 @@ frontend/
 │   │   ├── useDebouncedValue.js  # Reactive value debounce hook
 │   │   ├── useGlobalSearch.js    # Debounced global search hook
 │   │   ├── useOutsideClick.js    # Outside-click detection hook
-│   │   ├── useRecentBoards.js    # LocalStorage recent boards manager
 │   │   ├── useRenameBoardForm.js # Board rename form logic
 │   │   └── useTasks.js           # Tasks queries, mutations, and optimistic reorder
 │   ├── router/
