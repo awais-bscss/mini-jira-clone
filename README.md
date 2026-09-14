@@ -28,7 +28,6 @@ Mini Jira/
 │   │   ├── middleware/           # Centralized error handler and validators
 │   │   ├── models/               # Mongoose schemas: Board, Task, Counter
 │   │   ├── routes/               # REST routes: projects, tasks, search, ai
-│   │   ├── seed/                 # Database seeder (3 projects and initial tasks)
 │   │   ├── services/             # Business logic and atomic database updates
 │   │   └── utils/                # HTTP error classes and helpers
 │   ├── README.md                 # Backend documentation
@@ -86,7 +85,7 @@ CORS_ORIGIN=http://localhost:5173
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
-### 3. Install Dependencies and Seed Database
+### 3. Install Dependencies
 
 From the project root:
 
@@ -95,9 +94,6 @@ From the project root:
 npm install
 npm install --prefix backend
 npm install --prefix frontend
-
-# Seed sample projects and tasks into MongoDB
-npm run seed --prefix backend
 ```
 
 ### 4. Start Development Servers

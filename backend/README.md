@@ -93,9 +93,6 @@ backend/
 │   │   ├── boards.js          # Board and project routes
 │   │   ├── search.js          # Global search route
 │   │   └── tasks.js           # Task routes
-│   ├── seed/
-│   │   ├── data.js            # Seed dataset with 3 boards and initial tasks
-│   │   └── seeder.js          # Database seed script
 │   ├── services/
 │   │   ├── aiService.js       # Google Gemini streaming service
 │   │   ├── boardService.js    # Board business logic and task reordering
@@ -140,19 +137,13 @@ cd backend
 npm install
 ```
 
-### 2. Seed Database
-Populates MongoDB with 3 sample projects ("Design System & UI", "Fullstack Platform", "React Engineering"), initial tasks, and sequence counters:
-```bash
-npm run seed
-```
-
-### 3. Start Development Server
+### 2. Start Development Server
 Starts the server with nodemon auto-reloading:
 ```bash
 npm run dev
 ```
 
-### 4. Start Production Server
+### 3. Start Production Server
 Runs the server directly with Node:
 ```bash
 npm start

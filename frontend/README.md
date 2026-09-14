@@ -97,7 +97,7 @@ frontend/
 │   │   ├── Spinner/            # SVG loading spinner
 │   │   └── Tabs/               # Compound tabs component
 │   ├── constants/
-│   │   ├── data.js             # Static seed data (users, labels, columns)
+│   │   ├── data.js             # Static data (users, labels, columns)
 │   │   └── statuses.js         # Status keys, labels, and filter definitions
 │   ├── features/
 │   │   ├── ai-demo/            # AI assistant streaming demo page
