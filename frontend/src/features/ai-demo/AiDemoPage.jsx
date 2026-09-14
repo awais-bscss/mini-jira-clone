@@ -174,3 +174,5 @@ export function AiDemoPage() {
     </div>
   );
 }
+
+export default AiDemoPage;
