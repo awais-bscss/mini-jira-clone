@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 
 async function connectDB() {
+  if (mongoose.connection.readyState >= 1) {
+    return;
+  }
   const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/mini-jira';
 
   mongoose.connection.on('connected', () => {

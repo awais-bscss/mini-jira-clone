@@ -32,3 +32,5 @@ process.on('SIGINT', () => handleShutdown('SIGINT'));
 process.on('SIGTERM', () => handleShutdown('SIGTERM'));
 
 startServer();
+
+module.exports = app;
