@@ -12,25 +12,43 @@
   },
   "rewrites": [
     {
-      "source": "/api(/.*)?",
+      "source": "/api/:path*",
       "destination": {
         "service": "backend"
       }
     },
     {
-      "source": "/assets/(.*)",
+      "source": "/api",
+      "destination": {
+        "service": "backend"
+      }
+    },
+    {
+      "source": "/assets/:path*",
       "destination": {
         "service": "frontend"
       }
     },
     {
-      "source": "/(.*\\.(?:svg|ico|png|jpg|jpeg|json|woff|woff2|js|css))",
+      "source": "/vite.svg",
       "destination": {
         "service": "frontend"
       }
     },
     {
-      "source": "/(.*)",
+      "source": "/favicon.svg",
+      "destination": {
+        "service": "frontend"
+      }
+    },
+    {
+      "source": "/icons.svg",
+      "destination": {
+        "service": "frontend"
+      }
+    },
+    {
+      "source": "/:path*",
       "destination": {
         "service": "frontend",
         "path": "/index.html"
