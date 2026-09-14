@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  html { font-size: 16px; }
+  body {
+    @apply font-sans bg-surface-100 text-slate-800 antialiased;
+    margin: 0;
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-slate-300 rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-slate-400; }
+
+  /* Hide default browser search cancel buttons so they don't clash with custom cross icons */
+  input[type="search"]::-webkit-search-cancel-button,
+  input[type="search"]::-webkit-search-decoration,
+  input[type="search"]::-webkit-search-results-button,
+  input[type="search"]::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+  }
+
+  /* Remove default browser focus outline and ring border on buttons */
+  button:focus,
+  button:focus-visible,
+  [role="button"]:focus,
+  [role="button"]:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-brand-500 text-white text-sm font-medium rounded-md
+           hover:bg-brand-600 active:bg-brand-700 transition-colors duration-150 focus:outline-none
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-white text-slate-700 text-sm font-medium rounded-md border border-slate-200
+           hover:bg-slate-50 active:bg-slate-100 transition-colors duration-150 focus:outline-none
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 text-slate-600 text-sm font-medium rounded-md
+           hover:bg-slate-100 active:bg-slate-200 transition-colors duration-150 focus:outline-none;
+  }
+  .btn-danger {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-md
+           hover:bg-red-600 active:bg-red-700 transition-colors duration-150 focus:outline-none;
+  }
+  .input {
+    @apply w-full px-3 py-2 bg-white border border-slate-200 rounded-md text-sm text-slate-800
+           placeholder:text-slate-400 hover:border-slate-300 focus:outline-none focus:border-[#0052CC]
+           transition-colors duration-150;
+  }
+  .label {
+    @apply block text-xs font-medium text-slate-600 mb-1;
+  }
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+  .card-shadow {
+    @apply shadow-card hover:shadow-card-hover transition-shadow duration-200;
+  }
+}
+
+/* Column drag-over highlight */
+.column-drag-over {
+  @apply bg-brand-50 ring-2 ring-brand-300 ring-inset;
+}
+
+/* Dragging card */
+.card-dragging {
+  @apply opacity-80 rotate-1 scale-105;
+}
