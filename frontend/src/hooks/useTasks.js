@@ -32,7 +32,7 @@ export function useTask(taskId) {
         if (hit) return hit;
       }
     },
-    initialDataUpdatedAt: 0,
+    initialDataUpdatedAt: () => Date.now(),
   });
 }
 
@@ -58,17 +58,27 @@ export function useUpdateTask(boardId) {
     mutationFn: updateTask,
     onMutate: async (variables) => {
       await qc.cancelQueries({ queryKey: taskKeys.board(boardId) });
+      await qc.cancelQueries({ queryKey: taskKeys.detail(variables.id) });
       const snapshot = qc.getQueriesData({ queryKey: taskKeys.board(boardId) });
+      const detailSnapshot = qc.getQueryData(taskKeys.detail(variables.id));
       updateQueriesTasks(qc, taskKeys.board(boardId), (tasks) =>
         tasks.map(t => t.id === variables.id ? { ...t, ...variables } : t)
       );
       qc.setQueryData(taskKeys.detail(variables.id), (old) =>
         old ? { ...old, ...variables } : old
       );
-      return { snapshot };
+      return { snapshot, detailSnapshot };
     },
-    onError: (_err, _vars, ctx) => ctx?.snapshot?.forEach(([k, v]) => qc.setQueryData(k, v)),
-    onSettled: () => qc.invalidateQueries({ queryKey: taskKeys.board(boardId) }),
+    onError: (_err, vars, ctx) => {
+      ctx?.snapshot?.forEach(([k, v]) => qc.setQueryData(k, v));
+      if (ctx?.detailSnapshot !== undefined) {
+        qc.setQueryData(taskKeys.detail(vars.id), ctx.detailSnapshot);
+      }
+    },
+    onSettled: (_data, _err, vars) => {
+      qc.invalidateQueries({ queryKey: taskKeys.board(boardId) });
+      if (vars?.id) qc.invalidateQueries({ queryKey: taskKeys.detail(vars.id) });
+    },
   });
 }
 
@@ -86,14 +96,43 @@ export function useReorderTask(boardId) {
     mutationFn: (payload) => reorderTasks(boardId, payload),
     onMutate: async ({ taskId, newStatus, newOrder }) => {
       await qc.cancelQueries({ queryKey: taskKeys.board(boardId) });
+      await qc.cancelQueries({ queryKey: taskKeys.detail(taskId) });
+
       const snapshot = qc.getQueriesData({ queryKey: taskKeys.board(boardId) });
+      const detailSnapshot = qc.getQueryData(taskKeys.detail(taskId));
+
       updateQueriesTasks(qc, taskKeys.board(boardId), (tasks) =>
         tasks.map(t => t.id === taskId ? { ...t, status: newStatus, order: newOrder } : t)
       );
-      return { snapshot };
+
+      qc.setQueryData(taskKeys.detail(taskId), (old) => {
+        if (old) return { ...old, status: newStatus, order: newOrder };
+        for (const [, data] of qc.getQueriesData({ queryKey: taskKeys.all })) {
+          const hit = data?.tasks?.find(t => t.id === taskId);
+          if (hit) return { ...hit, status: newStatus, order: newOrder };
+        }
+        return old;
+      });
+
+      return { snapshot, detailSnapshot };
     },
-    onError: (_err, _vars, ctx) => ctx?.snapshot?.forEach(([k, v]) => qc.setQueryData(k, v)),
-    onSettled: () => qc.invalidateQueries({ queryKey: taskKeys.board(boardId) }),
+    onError: (_err, vars, ctx) => {
+      ctx?.snapshot?.forEach(([k, v]) => qc.setQueryData(k, v));
+      if (ctx?.detailSnapshot !== undefined) {
+        qc.setQueryData(taskKeys.detail(vars.taskId), ctx.detailSnapshot);
+      }
+    },
+    onSuccess: (updatedTask, vars) => {
+      if (updatedTask) {
+        qc.setQueryData(taskKeys.detail(vars.taskId), updatedTask);
+      }
+    },
+    onSettled: (_data, _err, vars) => {
+      qc.invalidateQueries({ queryKey: taskKeys.board(boardId) });
+      if (vars?.taskId) {
+        qc.invalidateQueries({ queryKey: taskKeys.detail(vars.taskId) });
+      }
+    },
   });
 }
 
