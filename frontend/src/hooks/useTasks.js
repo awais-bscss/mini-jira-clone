@@ -1,13 +1,14 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import {
   fetchTasks, fetchTask, createTask, updateTask, deleteTask,
-  reorderTasks, addComment,
+  reorderTasks, addComment, fetchTaskComments,
 } from '../api/tasks.js';
 
 export const taskKeys = {
-  all:    ['tasks'],
-  board:  (boardId) => ['tasks', boardId],
-  detail: (taskId)  => ['task', taskId],
+  all:      ['tasks'],
+  board:    (boardId) => ['tasks', boardId],
+  detail:   (taskId)  => ['task', taskId],
+  comments: (taskId)  => ['task', taskId, 'comments'],
 };
 
 export function useTasks(boardId, filters = {}, options = {}) {
@@ -136,10 +137,23 @@ export function useReorderTask(boardId) {
   });
 }
 
+export function useTaskComments(taskId, { limit = 20, search = '' } = {}) {
+  return useInfiniteQuery({
+    queryKey: [...taskKeys.comments(taskId), { limit, search }],
+    queryFn: ({ pageParam = 1 }) => fetchTaskComments(taskId, { page: pageParam, limit, search }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => (lastPage?.hasMore ? lastPage.page + 1 : undefined),
+    enabled: !!taskId,
+  });
+}
+
 export function useAddComment(taskId) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data) => addComment(taskId, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: taskKeys.detail(taskId) }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: taskKeys.comments(taskId) });
+      qc.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
+    },
   });
 }

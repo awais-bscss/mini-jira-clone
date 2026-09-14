@@ -50,6 +50,49 @@ class TaskService {
     return true;
   }
 
+  async getTaskComments(taskId, queryParams = {}) {
+    const task = await Task.findById(taskId).lean();
+    if (!task) throw new NotFoundError('Task not found');
+
+    const { page = '1', limit = '20', search = '' } = queryParams;
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 20));
+
+    let allComments = task.comments || [];
+
+    // Optional search within comments
+    const trimmedSearch = String(search || '').trim().toLowerCase();
+    if (trimmedSearch) {
+      allComments = allComments.filter((c) =>
+        c.text && c.text.toLowerCase().includes(trimmedSearch)
+      );
+    }
+
+    // Sort newest first
+    allComments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    const total = allComments.length;
+    const totalPages = Math.ceil(total / limitNum) || 1;
+    const skip = (pageNum - 1) * limitNum;
+    const paginated = allComments.slice(skip, skip + limitNum);
+
+    const formatted = paginated.map((c) => ({
+      id:        c._id ? c._id.toString() : c.id,
+      text:      c.text,
+      authorId:  c.authorId,
+      createdAt: c.createdAt instanceof Date ? c.createdAt.toISOString() : (c.createdAt || new Date().toISOString()),
+    }));
+
+    return {
+      comments:   formatted,
+      total,
+      page:       pageNum,
+      limit:      limitNum,
+      totalPages,
+      hasMore:    pageNum < totalPages,
+    };
+  }
+
   async addComment(taskId, commentData = {}) {
     const { text, authorId } = commentData;
 
