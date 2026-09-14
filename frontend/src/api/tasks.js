@@ -34,3 +34,10 @@ export const addComment = (taskId, data) =>
   apiClient.post(`/api/tasks/${taskId}/comments`, data, {
     fallbackMessage: 'Failed to add comment',
   });
+
+export const fetchTaskComments = (taskId, { page = 1, limit = 20, search = '' } = {}) =>
+  apiClient.get(`/api/tasks/${taskId}/comments`, {
+    params: { page, limit, search: search || undefined },
+    fallbackMessage: 'Failed to fetch comments',
+  });
+

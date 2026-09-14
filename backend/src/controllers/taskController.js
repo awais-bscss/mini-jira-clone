@@ -37,6 +37,15 @@ class TaskController {
     }
   }
 
+  async getTaskComments(req, res, next) {
+    try {
+      const result = await taskService.getTaskComments(req.params.id, req.query);
+      res.json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async addComment(req, res, next) {
     try {
       const comment = await taskService.addComment(req.params.id, req.body);
