@@ -36,11 +36,27 @@ function getProjectIcon(iconType) {
   }
 }
 
+const MAX_SIDEBAR_PROJECTS = 5;
+
 export const Sidebar = memo(function Sidebar() {
   const isOpen = useSelector(selectSidebarOpen);
   const { boardId } = useParams();
   const { data: boards = [], isLoading } = useBoards();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const displayBoards = useMemo(() => {
+    if (boards.length <= MAX_SIDEBAR_PROJECTS) return boards;
+    const topBoards = boards.slice(0, MAX_SIDEBAR_PROJECTS);
+    if (boardId && !topBoards.some(b => b.id === boardId)) {
+      const activeBoard = boards.find(b => b.id === boardId);
+      if (activeBoard) {
+        return [...topBoards.slice(0, MAX_SIDEBAR_PROJECTS - 1), activeBoard];
+      }
+    }
+    return topBoards;
+  }, [boards, boardId]);
+
+  const remainingProjectCount = Math.max(0, boards.length - displayBoards.length);
 
   const setFilter = useCallback((key, value) => {
     setSearchParams(p => {
@@ -156,7 +172,7 @@ export const Sidebar = memo(function Sidebar() {
               <div className="flex justify-center py-4"><Spinner size="sm" /></div>
             ) : (
               <nav className="space-y-0.5">
-                {boards.map(board => {
+                {displayBoards.map(board => {
                   const isActive = boardId === board.id;
                   return (
                     <Link
@@ -172,6 +188,18 @@ export const Sidebar = memo(function Sidebar() {
                     </Link>
                   );
                 })}
+
+                {remainingProjectCount > 0 && (
+                  <Link
+                    to="/"
+                    className="w-full flex items-center justify-between px-3 py-1.5 rounded-md text-xs text-[#0052CC] hover:bg-blue-50/60 transition-colors font-medium mt-0.5"
+                  >
+                    <span>+{remainingProjectCount} more project{remainingProjectCount > 1 ? 's' : ''}</span>
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                )}
 
                 {/* Prompt to visit all projects if none exist */}
                 {!isLoading && boards.length === 0 && (
