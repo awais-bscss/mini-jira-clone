@@ -14,15 +14,26 @@
     {
       "source": "/api(/.*)?",
       "destination": {
-        "type": "service",
         "service": "backend"
+      }
+    },
+    {
+      "source": "/assets/(.*)",
+      "destination": {
+        "service": "frontend"
+      }
+    },
+    {
+      "source": "/(.*\\.(?:svg|ico|png|jpg|jpeg|json|woff|woff2|js|css))",
+      "destination": {
+        "service": "frontend"
       }
     },
     {
       "source": "/(.*)",
       "destination": {
-        "type": "service",
-        "service": "frontend"
+        "service": "frontend",
+        "path": "/index.html"
       }
     }
   ]
