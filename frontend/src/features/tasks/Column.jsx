@@ -12,7 +12,7 @@ const COLUMN_COLORS = {
 
 const EMPTY_LIST = Object.freeze([]);
 
-export const Column = memo(function Column({ column, tasks = EMPTY_LIST, onCreateTask, isDragging = false }) {
+export const Column = memo(function Column({ column, tasks = EMPTY_LIST, onCreateTask, isDragging = false, boardId }) {
   const cfg = COLUMN_COLORS[column.id] || COLUMN_COLORS['todo'];
   const count = tasks.length;
 
@@ -83,7 +83,7 @@ export const Column = memo(function Column({ column, tasks = EMPTY_LIST, onCreat
                         transform: `translateY(${vi.start}px)`,
                       }}
                     >
-                      <Card task={sortedTasks[vi.index]} index={vi.index} />
+                      <Card task={sortedTasks[vi.index]} index={vi.index} boardId={boardId} />
                     </div>
                   ))}
                   {provided.placeholder}
@@ -91,7 +91,7 @@ export const Column = memo(function Column({ column, tasks = EMPTY_LIST, onCreat
               ) : (
                 <>
                   {sortedTasks.map((task, index) => (
-                    <Card key={task.id} task={task} index={index} />
+                    <Card key={task.id} task={task} index={index} boardId={boardId} />
                   ))}
                   {provided.placeholder}
                 </>

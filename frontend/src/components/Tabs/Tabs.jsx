@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useRef, useCallback } from 'react';
+import { createContext, useContext, useState, useRef, useCallback, useMemo, memo } from 'react';
 
 const TabsContext = createContext(null);
 
@@ -8,19 +8,26 @@ function useTabs() {
   return ctx;
 }
 
-function Tabs({ children, defaultTab, onChange }) {
+function TabsRoot({ children, defaultTab, onChange }) {
   const [active, setActive] = useState(defaultTab);
   const handleChange = useCallback((id) => {
     setActive(id);
     onChange?.(id);
   }, [onChange]);
 
+  const contextValue = useMemo(() => ({
+    active,
+    setActive: handleChange,
+  }), [active, handleChange]);
+
   return (
-    <TabsContext.Provider value={{ active, setActive: handleChange }}>
+    <TabsContext.Provider value={contextValue}>
       {children}
     </TabsContext.Provider>
   );
 }
+
+const Tabs = memo(TabsRoot);
 
 function List({ children, className = '' }) {
   const listRef = useRef(null);

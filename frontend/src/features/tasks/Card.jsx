@@ -1,17 +1,18 @@
-import { memo, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { memo, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Draggable } from '@hello-pangea/dnd';
 import { Avatar } from '../../components/Avatar/Avatar.jsx';
 import { IssueTypeIcon } from '../../components/Icon/IssueTypeIcon.jsx';
 import { LABELS } from '../../constants/data.js';
 import { format, isPast, isToday } from 'date-fns';
 
-const Card = memo(function Card({ task, index }) {
+const Card = memo(function Card({ task, index, boardId }) {
   const navigate = useNavigate();
-  const { boardId } = useParams();
 
   const handleClick = useCallback(() => {
-    navigate(`/board/${boardId}/task/${task.id}`);
+    if (boardId) {
+      navigate(`/board/${boardId}/task/${task.id}`);
+    }
   }, [navigate, boardId, task.id]);
 
   const handleKeyDown = useCallback((e) => {
@@ -22,6 +23,13 @@ const Card = memo(function Card({ task, index }) {
   }, [handleClick]);
 
   const label = LABELS.find(l => l.id === task.labelId);
+  const labelStyle = useMemo(() => {
+    if (!label) return null;
+    return {
+      backgroundColor: label.bg || `${label.color}15`,
+      color: label.color,
+    };
+  }, [label]);
   const dueDate = task.dueDate ? new Date(task.dueDate) : null;
   const dueDateStr = dueDate ? format(dueDate, 'MMM d') : null;
   const isOverdue = dueDate && isPast(dueDate) && !isToday(dueDate);
@@ -62,10 +70,7 @@ const Card = memo(function Card({ task, index }) {
             <div className="mb-2.5">
               <span
                 className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium tracking-tight"
-                style={{
-                  backgroundColor: label.bg || `${label.color}15`,
-                  color: label.color,
-                }}
+                style={labelStyle}
               >
                 {label.name}
               </span>
